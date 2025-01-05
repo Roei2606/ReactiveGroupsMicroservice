@@ -67,4 +67,65 @@ class GroupServiceImpl(
             .deleteAll()
             .log()
     }
+
+    override fun addUserToGroup(groupId: String, groupUser: GroupUserBoundary): Mono<Void> {
+        if (groupUser.email.isNullOrEmpty()) {
+            return Mono.error(IllegalArgumentException("Email cannot be null or empty"))
+        }
+
+        return this.groupCrud
+            .findById(groupId)
+            .switchIfEmpty(Mono.error(GroupNotFoundException(groupId)))
+            .flatMap { group ->
+                if (group.users == null) {
+                    group.users = mutableSetOf()
+                }
+                if (group.users!!.contains(groupUser.email)) {
+                    return@flatMap Mono.empty<Void>()
+                }
+                group.users!!.add(groupUser.email!!)
+                this.groupCrud.save(group)
+            }
+            .then()
+            .log()
+    }
+
+    override fun getUsersInGroup(groupId: String, page: Int, size: Int): Flux<GroupUserBoundary> {
+        return this.groupCrud
+            .findById(groupId)
+            .switchIfEmpty(Mono.error(GroupNotFoundException(groupId)))
+            .log()
+            .flatMapMany { group ->
+                val sortedUsers = group.users?.sortedWith(String.CASE_INSENSITIVE_ORDER) ?: listOf()
+                Flux.fromIterable(sortedUsers)
+                    .skip((page * size).toLong())
+                    .take(size.toLong())
+                    .map { GroupUserBoundary(email = it) }
+                    .log()
+            }
+    }
+
+    override fun getGroupsForUser(email: String, page: Int, size: Int): Flux<GroupBoundary> {
+        return this.groupCrud
+            .findAllByUsersContaining(email)
+            .log()
+            .sort(compareBy { it.id })
+            .skip((page * size).toLong())
+            .take(size.toLong())
+            .map { this.groupConverter.toBoundary(it) }
+            .log()
+
+    }
+
+    override fun removeAllUsersFromGroup(groupId: String): Mono<Void> {
+        return this.groupCrud
+            .findById(groupId)
+            .switchIfEmpty(Mono.error(GroupNotFoundException(groupId)))
+            .flatMap { group ->
+                group.users?.clear()
+                this.groupCrud.save(group)
+            }
+            .then() 
+            .log()
+    }
 }

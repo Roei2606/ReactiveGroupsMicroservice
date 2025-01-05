@@ -9,4 +9,8 @@ interface GroupService {
     fun getGroups(page: Int, size: Int): Flux<GroupBoundary>
     fun updateGroup(groupId: String, updatedGroup: GroupBoundary): Mono<Void>
     fun deleteAllGroups(): Mono<Void>
+    fun addUserToGroup(groupId: String, groupUser: GroupUserBoundary): Mono<Void>
+    fun getUsersInGroup(groupId: String, page: Int, size: Int): Flux<GroupUserBoundary>
+    fun getGroupsForUser(email: String, page: Int, size: Int): Flux<GroupBoundary>
+    fun removeAllUsersFromGroup(groupId: String): Mono<Void>
 }

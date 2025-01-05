@@ -11,6 +11,6 @@ class GroupBoundary(
     constructor() : this(null, null, null, null)
 
     override fun toString(): String {
-        return "{id=$id, name=$name, creationDate=$creationDate, description=$description}"
+        return "{id:$id, name:$name, creationDate:$creationDate, description:$description}"
     }
 }

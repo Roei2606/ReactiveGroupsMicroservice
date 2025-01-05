@@ -8,11 +8,12 @@ class GroupEntity(
     @Id var id: String?,
     var name: String?,
     var creationDate: String?,
-    var description: String?
+    var description: String?,
+    var users: MutableSet<String>? = mutableSetOf()
 ) {
     constructor() : this(null, null, null, null)
 
     override fun toString(): String {
-        return "{id=$id, name=$name, creationDate=$creationDate, description=$description}"
+        return "{id:$id, name:$name, creationDate:$creationDate, description:$description}"
     }
 }

@@ -6,4 +6,5 @@ import reactor.core.publisher.Flux
 
 interface GroupCrud : ReactiveMongoRepository<GroupEntity, String>{
     fun findAllByIdNotNull(pageable: PageRequest): Flux<GroupEntity>
+    fun findAllByUsersContaining(email: String): Flux<GroupEntity>
 }

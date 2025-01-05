@@ -51,4 +51,44 @@ class GroupController(
     fun deleteAllGroups(): Mono<Void> {
         return this.groupService.deleteAllGroups()
     }
+
+    @PutMapping(
+        path = ["/{groupId}/users"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun addUserToGroup(
+        @PathVariable groupId: String,
+        @RequestBody groupUser: GroupUserBoundary
+    ): Mono<Void> {
+        return this.groupService.addUserToGroup(groupId, groupUser)
+    }
+
+    @GetMapping(
+        path = ["/{groupId}/users"],
+        produces = [MediaType.TEXT_EVENT_STREAM_VALUE]
+    )
+    fun getUsersInGroup(
+        @PathVariable groupId: String,
+        @RequestParam(name = "page", required = false, defaultValue = "0") page: Int,
+        @RequestParam(name = "size", required = false, defaultValue = "10") size: Int
+    ): Flux<GroupUserBoundary> {
+        return this.groupService.getUsersInGroup(groupId, page, size)
+    }
+
+    @GetMapping(
+        path = ["/{email}/groups"],
+        produces = [MediaType.TEXT_EVENT_STREAM_VALUE]
+    )
+    fun getGroupsForUser(
+        @PathVariable email: String,
+        @RequestParam(name = "page", required = false, defaultValue = "0") page: Int,
+        @RequestParam(name = "size", required = false, defaultValue = "10") size: Int
+    ): Flux<GroupBoundary> {
+        return this.groupService.getGroupsForUser(email, page, size)
+    }
+
+    @DeleteMapping(path = ["/{groupId}/users"])
+    fun removeAllUsersFromGroup(@PathVariable groupId: String): Mono<Void> {
+        return this.groupService.removeAllUsersFromGroup(groupId)
+    }
 }
